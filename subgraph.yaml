@@ -1,4 +1,6 @@
-specVersion: 0.0.1
+specVersion: 0.0.2
+description: The Graph protocol subgraph for NEWO on Avalanche
+repository: https://github.com/brokenomics/newo-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
@@ -8,6 +10,7 @@ dataSources:
     source:
       address: "0x4Bfc90322dD638F81F034517359BD447f8E0235a"
       abi: NewOrder
+      startBlock: 11833866 # First contract event block, minus one just in case :)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
