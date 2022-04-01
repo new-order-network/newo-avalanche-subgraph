@@ -7,9 +7,10 @@ import {
   RoleRevoked,
   Transfer
 } from "../generated/NewOrder/NewOrder"
-import { NEWO_TOKEN_ADDRESS, JOE_REWARDS_VAULT } from "./utils/addresses"
+import { JLP } from "../generated/NewOrder/JLP"
+import { NEWO_TOKEN_ADDRESS, JOE_REWARDS_VAULT_ADDRESS, MULTISIG_ADDRESS, JLP_TOKEN_ADDRESS } from "./utils/addresses"
 import { SystemState } from "../generated/schema"
-import { tryNEWOBalanceOf, tryNEWOTotalSupply } from "./utils/readContract"
+import { tryJLPBalanceOf, tryJLPTotalSupply, tryNEWOBalanceOf, tryNEWOTotalSupply } from "./utils/readContract"
 
 export function handleApproval(event: Approval): void {
   updateSystemState(event)
@@ -32,11 +33,11 @@ function updateSystemState(event: ethereum.Event): void {
   if (!systemState) {
     systemState = new SystemState("0")
     systemState.coinAddress = Bytes.fromByteArray(NEWO_TOKEN_ADDRESS)
-    systemState.circulatingSupply = BigDecimal.zero()
+    systemState.avaxCirculatingSupply = BigDecimal.zero()
   }
 
   // Update values that change, for now just circulating supply
-  systemState.circulatingSupply = determineCirculatingSupply()
+  systemState.avaxCirculatingSupply = determineCirculatingSupply()
   systemState.save()
 }
 
@@ -48,10 +49,22 @@ function determineCirculatingSupply(): BigDecimal {
   let totalSupply = tryNEWOTotalSupply(contract)
 
   // Locked tokens in Joe LP Vault
-  let lockedRewardsSupply = tryNEWOBalanceOf(contract, JOE_REWARDS_VAULT)
+  let lockedRewardsSupply = tryNEWOBalanceOf(contract, JOE_REWARDS_VAULT_ADDRESS)
+
+  // Locked tokens in multisig
+  let lockedMultisigSupply = tryNEWOBalanceOf(contract, MULTISIG_ADDRESS)
+
+  // Formula to convert Joe LP Tokens in multisig into NEWO value
+  let jlpContract = JLP.bind(JLP_TOKEN_ADDRESS)
+  let newoInLpPool = tryNEWOBalanceOf(contract, JLP_TOKEN_ADDRESS)
+  let multisigLpBalance = tryJLPBalanceOf(jlpContract, MULTISIG_ADDRESS)
+  let jlpTotalSupply = tryJLPTotalSupply(jlpContract)
+  let lockedInLp = multisigLpBalance.div(jlpTotalSupply).times(newoInLpPool)
 
   let circulatingSupply = totalSupply
     .minus(lockedRewardsSupply)
+    .minus(lockedMultisigSupply)
+    .minus(lockedInLp)
     .div(BigDecimal.fromString("1000000000000000000"))
 
   return circulatingSupply

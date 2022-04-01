@@ -24,6 +24,8 @@ dataSources:
       abis:
         - name: NewOrder
           file: ./abis/NewOrder.json
+        - name: JLP
+          file: ./abis/JLP.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,uint256)
           handler: handleApproval
