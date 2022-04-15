@@ -7,7 +7,7 @@ The Graph protocol subgraph for NEWO on Avalanche
 To pull the code:
 
 ```
-git clone https://github.com/brokenomics/newo-avalanche-subgraph
+git clone https://github.com/new-order-network/newo-avalanche-subgraph
 cd newo-avalanche-subgraph
 ```
 
@@ -35,4 +35,6 @@ To deploy to Subgraph Studio so you can sync and use the playground to query aga
 npm run deploy
 ```
 
-Subgraph Studio link: https://thegraph.com/hosted-service/subgraph/brokenomics/new-order-avalanche
+## Deployments
+
+Hosted: https://thegraph.com/hosted-service/subgraph/new-order-network/new-order-avalanche
