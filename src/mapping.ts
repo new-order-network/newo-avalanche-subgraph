@@ -5,12 +5,22 @@ import {
   RoleAdminChanged,
   RoleGranted,
   RoleRevoked,
-  Transfer
+  Transfer,
 } from "../generated/NewOrder/NewOrder"
 import { JLP } from "../generated/NewOrder/JLP"
-import { NEWO_TOKEN_ADDRESS, JOE_REWARDS_VAULT_ADDRESS, MULTISIG_ADDRESS, JLP_TOKEN_ADDRESS } from "./utils/addresses"
+import {
+  NEWO_TOKEN_ADDRESS,
+  JOE_REWARDS_VAULT_ADDRESS,
+  MULTISIG_ADDRESS,
+  JLP_TOKEN_ADDRESS,
+} from "./utils/addresses"
 import { SystemState } from "../generated/schema"
-import { tryJLPBalanceOf, tryJLPTotalSupply, tryNEWOBalanceOf, tryNEWOTotalSupply } from "./utils/readContract"
+import {
+  tryJLPBalanceOf,
+  tryJLPTotalSupply,
+  tryNEWOBalanceOf,
+  tryNEWOTotalSupply,
+} from "./utils/readContract"
 
 export function handleApproval(event: Approval): void {
   updateSystemState(event)
@@ -59,13 +69,20 @@ function determineCirculatingSupply(): BigDecimal {
   let newoInLpPool = tryNEWOBalanceOf(contract, JLP_TOKEN_ADDRESS)
   let multisigLpBalance = tryJLPBalanceOf(jlpContract, MULTISIG_ADDRESS)
   let jlpTotalSupply = tryJLPTotalSupply(jlpContract)
-  let lockedInLp = multisigLpBalance.div(jlpTotalSupply).times(newoInLpPool)
 
-  let circulatingSupply = totalSupply
+  let totalSupplyMinusRewardsAndMultisig = totalSupply
     .minus(lockedRewardsSupply)
     .minus(lockedMultisigSupply)
-    .minus(lockedInLp)
-    .div(BigDecimal.fromString("1000000000000000000"))
+
+  let decimalDivisor = BigDecimal.fromString("1000000000000000000")
+
+  // Handle no JLP balance
+  if (jlpTotalSupply.equals(BigDecimal.zero())) {
+    return totalSupplyMinusRewardsAndMultisig.div(decimalDivisor)
+  }
+
+  let lockedInLp = multisigLpBalance.div(jlpTotalSupply).times(newoInLpPool)
+  let circulatingSupply = totalSupplyMinusRewardsAndMultisig.minus(lockedInLp).div(decimalDivisor)
 
   return circulatingSupply
 }

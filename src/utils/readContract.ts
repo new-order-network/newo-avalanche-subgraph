@@ -1,5 +1,4 @@
 import { Address, BigDecimal, log } from "@graphprotocol/graph-ts"
-import { SwapCall } from "../../generated/NewOrder/JLP"
 import { NewOrder } from "../../generated/NewOrder/NewOrder"
 import { JLP } from "../../generated/NewOrder/JLP"
 
