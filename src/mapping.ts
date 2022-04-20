@@ -43,11 +43,11 @@ function updateSystemState(event: ethereum.Event): void {
   if (!systemState) {
     systemState = new SystemState("0")
     systemState.coinAddress = Bytes.fromByteArray(NEWO_TOKEN_ADDRESS)
-    systemState.avaxCirculatingSupply = BigDecimal.zero()
+    systemState.circulatingSupply = BigDecimal.zero()
   }
 
   // Update values that change, for now just circulating supply
-  systemState.avaxCirculatingSupply = determineCirculatingSupply()
+  systemState.circulatingSupply = determineCirculatingSupply()
   systemState.save()
 }
 

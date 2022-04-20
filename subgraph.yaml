@@ -1,6 +1,6 @@
 specVersion: 0.0.2
 description: The Graph protocol subgraph for NEWO on Avalanche
-repository: https://github.com/new-order-network/newo-subgraph
+repository: https://github.com/new-order-network/newo-avalanche-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
