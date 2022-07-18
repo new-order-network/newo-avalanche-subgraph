@@ -13,6 +13,7 @@ import {
   JOE_REWARDS_VAULT_ADDRESS,
   MULTISIG_ADDRESS,
   JLP_TOKEN_ADDRESS,
+  VENEWO_TOKEN_ADDRESS,
 } from "./utils/addresses"
 import { SystemState } from "../generated/schema"
 import {
@@ -82,7 +83,14 @@ function determineCirculatingSupply(): BigDecimal {
   }
 
   let lockedInLp = multisigLpBalance.div(jlpTotalSupply).times(newoInLpPool)
-  let circulatingSupply = totalSupplyMinusRewardsAndMultisig.minus(lockedInLp).div(decimalDivisor)
+
+  // Supply locked in veNEWO
+  let veNewoBalance = tryNEWOBalanceOf(contract, VENEWO_TOKEN_ADDRESS)
+
+  let circulatingSupply = totalSupplyMinusRewardsAndMultisig
+    .minus(lockedInLp)
+    .minus(veNewoBalance)
+    .div(decimalDivisor)
 
   return circulatingSupply
 }
